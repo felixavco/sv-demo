@@ -1,12 +1,9 @@
 import React, { useState, useEffect, Fragment } from "react";
 import Loader from "../../commons/loader/Loader";
-import {Sidebar} from 'primereact/sidebar';
+import { Sidebar } from "primereact/sidebar";
 
 import { connect } from "react-redux";
-import {
-  getCustomers,
-  getSingleCustomer
-} from "../../../redux/actions/customer.actions";
+import { getCustomers } from "../../../redux/actions/customer.actions";
 
 const Row = ({ data, onClick }) => {
   return (
@@ -23,33 +20,86 @@ const SidebarContent = ({ data }) => {
   return (
     <div className="mt-4 px-2">
       <h4 className="text-center">{data.name}</h4>
-      <hr/>
-     <p> <strong>Phone:&nbsp;</strong>{data.phone}</p>
+      <hr />
+      <ul className="list-group">
+        <li className="list-group-item">
+          <strong>Username:&nbsp;</strong>
+          {data.username}
+        </li>
+        <li className="list-group-item">
+          <strong>Email:&nbsp;</strong>
+          {data.email}
+        </li>
+        <li className="list-group-item">
+          <strong>Phone:&nbsp;</strong>
+          {data.phone}
+        </li>
+        <li className="list-group-item">
+          <strong>Web Site:&nbsp;</strong>
+          {data.website}
+        </li>
+        <ul className="list-group">
+          <h6 className="my-3">Address</h6>
+          <li className="list-group-item">
+            <strong>Street:&nbsp;</strong>
+            {data.address.street}
+          </li>
+          <li className="list-group-item">
+            <strong>Suite:&nbsp;</strong>
+            {data.address.suite}
+          </li>
+          <li className="list-group-item">
+            <strong>City:&nbsp;</strong>
+            {data.address.city}
+          </li>
+          <li className="list-group-item">
+            <strong>Zip Code:&nbsp;</strong>
+            {data.address.zipcode}
+          </li>
+          <li className="list-group-item">
+            <strong>Lat:&nbsp;</strong>
+            {data.address.geo.lat}&nbsp;
+            <strong>Lat:&nbsp;</strong>
+            {data.address.geo.lng}
+          </li>
+        </ul>
+        <ul className="list-group">
+          <h6 className="my-3">Company</h6>
+          <li className="list-group-item">
+            <strong>Name:&nbsp;</strong>
+            {data.company.name}
+          </li>
+          <li className="list-group-item">
+            <strong>Catch Phrase:&nbsp;</strong>
+            {data.company.catchphrase}
+          </li>
+          <li className="list-group-item">
+            <strong>BS:&nbsp;</strong>
+            {data.company.bs}
+          </li>
+        </ul>
+      </ul>
     </div>
-  )
-}
+  );
+};
 
-const Customers = ({ getCustomers, customersList, getSingleCustomer, customer }) => {
-
-  const [isOpen, setIsOpen] = useState(false)
+const Customers = ({ getCustomers, customers }) => {
+  const [customer, setCustomer] = useState(undefined);
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    fetchCustomers();
+    getCustomers();
   }, []);
 
-  useEffect(() => {
-    if(customer !== undefined) {
-      setIsOpen(true);
-    }
-  }, [customer])
-
-  const fetchCustomers = () => {
-    getCustomers();
+  const openSidebar = id => {
+    const cust = customers.filter(cust => cust.id === id)[0];
+    setCustomer(cust);
+    setIsOpen(true);
   };
 
   let content = <Loader fullPage={true} />;
 
-  if (customersList.length > 0) {
+  if (customers.length) {
     content = (
       <Fragment>
         <h3 className="text-center my-3">Customers</h3>
@@ -63,24 +113,24 @@ const Customers = ({ getCustomers, customersList, getSingleCustomer, customer })
             </tr>
           </thead>
           <tbody>
-            {customersList.map(customer => {
+            {customers.map(customer => {
               return (
                 <Row
                   key={customer.id}
-                  onClick={() => getSingleCustomer(customer.id)}
+                  onClick={() => openSidebar(customer.id)}
                   data={customer}
                 />
               );
             })}
           </tbody>
         </table>
-        <Sidebar 
-          visible={isOpen} 
-          onHide={() => setIsOpen(false)} 
-          position="right" 
-          style={{width:'50em'}}
+        <Sidebar
+          visible={isOpen}
+          onHide={() => setIsOpen(false)}
+          position="right"
+          style={{ width: "30em" }}
         >
-          { customer !== undefined && <SidebarContent data={customer} />}
+          {customer && <SidebarContent data={customer} />}
         </Sidebar>
       </Fragment>
     );
@@ -90,11 +140,10 @@ const Customers = ({ getCustomers, customersList, getSingleCustomer, customer })
 };
 
 const mapStateToProps = state => ({
-  customersList: state.customers.list,
-  customer: state.customers.single
+  customers: state.customers.list
 });
 
 export default connect(
   mapStateToProps,
-  { getCustomers, getSingleCustomer }
+  { getCustomers }
 )(Customers);
