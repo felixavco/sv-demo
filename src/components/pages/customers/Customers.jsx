@@ -1,20 +1,10 @@
-import React, { useState, useEffect, Fragment } from "react";
+import React, { useState, useEffect } from "react";
 import Loader from "../../commons/loader/Loader";
+import Table from "../../commons/table/Table";
 import { Sidebar } from "primereact/sidebar";
 
 import { connect } from "react-redux";
 import { getCustomers } from "../../../redux/actions/customer.actions";
-
-const Row = ({ data, onClick }) => {
-  return (
-    <tr style={{ cursor: "pointer" }} onClick={onClick}>
-      <th scope="row">{data.id}</th>
-      <td>{data.name}</td>
-      <td>{data.email}</td>
-      <td>{data.website}</td>
-    </tr>
-  );
-};
 
 const SidebarContent = ({ data }) => {
   return (
@@ -87,9 +77,16 @@ const Customers = ({ getCustomers, customers }) => {
   const [customer, setCustomer] = useState(undefined);
   const [isOpen, setIsOpen] = useState(false);
 
+  const headers = [
+    { title: "ID", field: "id" },
+    { title: "Name", field: "name" },
+    { title: "Email", field: "email" },
+    { title: "Web Site", field: "website" }
+  ]
+
   useEffect(() => {
     getCustomers();
-  }, []);
+  }, [getCustomers]);
 
   const openSidebar = id => {
     const cust = customers.filter(cust => cust.id === id)[0];
@@ -101,29 +98,16 @@ const Customers = ({ getCustomers, customers }) => {
 
   if (customers.length) {
     content = (
-      <Fragment>
+      <section className="py-5">
         <h3 className="text-center my-3">Customers</h3>
-        <table className="table">
-          <thead>
-            <tr>
-              <th scope="col">ID</th>
-              <th scope="col">Name</th>
-              <th scope="col">Email</th>
-              <th scope="col">Web Site</th>
-            </tr>
-          </thead>
-          <tbody>
-            {customers.map(customer => {
-              return (
-                <Row
-                  key={customer.id}
-                  onClick={() => openSidebar(customer.id)}
-                  data={customer}
-                />
-              );
-            })}
-          </tbody>
-        </table>
+
+        <Table
+          dataList={customers}
+          headers={headers}
+          onClick={openSidebar}
+          stripped={true}
+        />
+
         <Sidebar
           visible={isOpen}
           onHide={() => setIsOpen(false)}
@@ -132,7 +116,7 @@ const Customers = ({ getCustomers, customers }) => {
         >
           {customer && <SidebarContent data={customer} />}
         </Sidebar>
-      </Fragment>
+      </section>
     );
   }
 

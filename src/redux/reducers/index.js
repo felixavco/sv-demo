@@ -1,6 +1,8 @@
 import { combineReducers } from 'redux';
 import customersReducers from './customers.reducers';
+import layoutReducers from './layout.reducer'
 
 export default combineReducers({
-    customers: customersReducers
+    customers: customersReducers,
+    layout: layoutReducers
 });
